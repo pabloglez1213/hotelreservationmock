@@ -17,6 +17,21 @@ namespace Reservoom.Models
 
         public Reservation(RoomID roomID, string username, DateTime startTime, DateTime endTime)
         {
+            if (roomID == null)
+            {
+                throw new ArgumentNullException(nameof(roomID), "RoomID cannot be null.");
+            }
+
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new ArgumentException("Username cannot be null or empty.", nameof(username));
+            }
+
+            if (startTime >= endTime)
+            {
+                throw new ArgumentException("Start time must be before end time.", nameof(startTime));
+            }
+
             RoomID = roomID;
             Username = username;
             StartTime = startTime;
