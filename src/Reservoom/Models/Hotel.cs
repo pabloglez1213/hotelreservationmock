@@ -38,5 +38,10 @@ namespace Reservoom.Models
         {
             await _reservationBook.AddReservation(reservation);
         }
+
+        public async Task DeleteReservation(Reservation reservation)
+        {
+            await _reservationBook.DeleteReservation(reservation);
+        }
     }
 }
