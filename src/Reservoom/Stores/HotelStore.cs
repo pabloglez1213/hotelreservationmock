@@ -16,6 +16,7 @@ namespace Reservoom.Stores
         public IEnumerable<Reservation> Reservations => _reservations;
 
         public event Action<Reservation> ReservationMade;
+        public event Action<Reservation> ReservationDeleted;
 
         public HotelStore(Hotel hotel)
         {
@@ -47,9 +48,23 @@ namespace Reservoom.Stores
             OnReservationMade(reservation);
         }
 
+        public async Task DeleteReservation(Reservation reservation)
+        {
+            await _hotel.DeleteReservation(reservation);
+
+            _reservations.Remove(reservation);
+
+            OnReservationDeleted(reservation);
+        }
+
         private void OnReservationMade(Reservation reservation)
         {
             ReservationMade?.Invoke(reservation);
+        }
+
+        private void OnReservationDeleted(Reservation reservation)
+        {
+            ReservationDeleted?.Invoke(reservation);
         }
 
         private async Task Initialize()

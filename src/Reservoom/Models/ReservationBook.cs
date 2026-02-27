@@ -1,6 +1,7 @@
 ﻿using Reservoom.Exceptions;
 using Reservoom.Services.ReservationConflictValidators;
 using Reservoom.Services.ReservationCreators;
+using Reservoom.Services.ReservationDeleters;
 using Reservoom.Services.ReservationProviders;
 using System;
 using System.Collections.Generic;
@@ -15,12 +16,14 @@ namespace Reservoom.Models
         private readonly IReservationProvider _reservationProvider;
         private readonly IReservationCreator _reservationCreator;
         private readonly IReservationConflictValidator _reservationConflictValidator;
+        private readonly IReservationDeleter _reservationDeleter;
 
-        public ReservationBook(IReservationProvider reservationProvider, IReservationCreator reservationCreator, IReservationConflictValidator reservationConflictValidator)
+        public ReservationBook(IReservationProvider reservationProvider, IReservationCreator reservationCreator, IReservationConflictValidator reservationConflictValidator, IReservationDeleter reservationDeleter)
         {
             _reservationProvider = reservationProvider;
             _reservationCreator = reservationCreator;
             _reservationConflictValidator = reservationConflictValidator;
+            _reservationDeleter = reservationDeleter;
         }
 
         /// <summary>
@@ -53,6 +56,11 @@ namespace Reservoom.Models
             }
 
             await _reservationCreator.CreateReservation(reservation);
+        }
+
+        public async Task DeleteReservation(Reservation reservation)
+        {
+            await _reservationDeleter.DeleteReservation(reservation);
         }
     }
 }

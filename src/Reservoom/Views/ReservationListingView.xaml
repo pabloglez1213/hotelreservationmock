@@ -24,6 +24,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
             <TextBlock
@@ -37,6 +38,13 @@
                 AutomationProperties.AutomationId="MakeReservationButton"
                 Command="{Binding MakeReservationCommand}"
                 Content="Make Reservation" />
+
+            <Button
+                Grid.Column="2"
+                Margin="10,0,0,0"
+                AutomationProperties.AutomationId="DeleteReservationButton"
+                Command="{Binding DeleteReservationCommand}"
+                Content="Delete Reservation" />
         </Grid>
 
         <Grid Grid.Row="1" Margin="0,25,0,0">
@@ -57,7 +65,10 @@
 
                     <TextBlock Text="No reservations have been made." Visibility="{Binding HasReservations, Converter={StaticResource InverseBooleanToVisibilityConverter}}" />
 
-                    <ListView ItemsSource="{Binding Reservations}" Visibility="{Binding HasReservations, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ListView
+                        ItemsSource="{Binding Reservations}"
+                        SelectedItem="{Binding SelectedReservation}"
+                        Visibility="{Binding HasReservations, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />

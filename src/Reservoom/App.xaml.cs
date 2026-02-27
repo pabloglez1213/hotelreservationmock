@@ -9,6 +9,7 @@ using Reservoom.Models;
 using Reservoom.Services;
 using Reservoom.Services.ReservationConflictValidators;
 using Reservoom.Services.ReservationCreators;
+using Reservoom.Services.ReservationDeleters;
 using Reservoom.Services.ReservationProviders;
 using Reservoom.Stores;
 using Reservoom.ViewModels;
@@ -50,6 +51,7 @@ namespace Reservoom
                     services.AddSingleton<IReservationProvider, DatabaseReservationProvider>();
                     services.AddSingleton<IReservationCreator, DatabaseReservationCreator>();
                     services.AddSingleton<IReservationConflictValidator, DatabaseReservationConflictValidator>();
+                    services.AddSingleton<IReservationDeleter, DatabaseReservationDeleter>();
 
                     services.AddTransient<ReservationBook>();
 
