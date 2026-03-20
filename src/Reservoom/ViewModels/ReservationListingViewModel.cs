@@ -57,6 +57,7 @@ namespace Reservoom.ViewModels
 
         public ICommand LoadReservationsCommand { get; }
         public ICommand MakeReservationCommand { get; }
+        public ICommand ModifyReservationCommand { get; }
         public ICommand DeleteReservationCommand { get; }
 
         private ReservationViewModel _selectedReservation;
@@ -70,17 +71,22 @@ namespace Reservoom.ViewModels
             }
         }
 
-        public ReservationListingViewModel(HotelStore hotelStore, NavigationService<MakeReservationViewModel> makeReservationNavigationService)
+        public ReservationListingViewModel(
+            HotelStore hotelStore,
+            NavigationService<MakeReservationViewModel> makeReservationNavigationService,
+            ParameterizedNavigationService<Reservation, ModifyReservationViewModel> modifyReservationNavigationService)
         {
             _hotelStore = hotelStore;
             _reservations = new ObservableCollection<ReservationViewModel>();
 
             LoadReservationsCommand = new LoadReservationsCommand(this, hotelStore);
             MakeReservationCommand = new NavigateCommand<MakeReservationViewModel>(makeReservationNavigationService);
+            ModifyReservationCommand = new ModifyReservationNavigateCommand(this, modifyReservationNavigationService);
             DeleteReservationCommand = new DeleteReservationCommand(this, hotelStore);
 
             _hotelStore.ReservationMade += OnReservationMode;
             _hotelStore.ReservationDeleted += OnReservationDeleted;
+            _hotelStore.ReservationModified += OnReservationModified;
             _reservations.CollectionChanged += OnReservationsChanged;
         }
 
@@ -88,6 +94,7 @@ namespace Reservoom.ViewModels
         {
             _hotelStore.ReservationMade -= OnReservationMode;
             _hotelStore.ReservationDeleted -= OnReservationDeleted;
+            _hotelStore.ReservationModified -= OnReservationModified;
             base.Dispose();
         }
 
@@ -108,9 +115,29 @@ namespace Reservoom.ViewModels
             }
         }
 
-        public static ReservationListingViewModel LoadViewModel(HotelStore hotelStore, NavigationService<MakeReservationViewModel> makeReservationNavigationService)
+        private void OnReservationModified(Reservation oldReservation, Reservation newReservation)
         {
-            ReservationListingViewModel viewModel = new ReservationListingViewModel(hotelStore, makeReservationNavigationService);
+            ReservationViewModel reservationViewModel = _reservations.FirstOrDefault(r => r.Reservation == oldReservation);
+
+            if (reservationViewModel != null)
+            {
+                int index = _reservations.IndexOf(reservationViewModel);
+                _reservations[index] = new ReservationViewModel(newReservation);
+                return;
+            }
+
+            _reservations.Add(new ReservationViewModel(newReservation));
+        }
+
+        public static ReservationListingViewModel LoadViewModel(
+            HotelStore hotelStore,
+            NavigationService<MakeReservationViewModel> makeReservationNavigationService,
+            ParameterizedNavigationService<Reservation, ModifyReservationViewModel> modifyReservationNavigationService)
+        {
+            ReservationListingViewModel viewModel = new ReservationListingViewModel(
+                hotelStore,
+                makeReservationNavigationService,
+                modifyReservationNavigationService);
 
             viewModel.LoadReservationsCommand.Execute(null);
 

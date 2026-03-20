@@ -19,13 +19,19 @@ namespace Reservoom.Services.ReservationConflictValidators
             _dbContextFactory = dbContextFactory;
         }
 
-        public async Task<Reservation> GetConflictingReservation(Reservation reservation)
+        public async Task<Reservation> GetConflictingReservation(Reservation reservation, Reservation reservationToIgnore = null)
         {
             using (ReservoomDbContext context = _dbContextFactory.CreateDbContext())
             {
                 ReservationDTO reservationDTO = await context.Reservations
                     .Where(r => r.FloorNumber == reservation.RoomID.FloorNumber)
                     .Where(r => r.RoomNumber == reservation.RoomID.RoomNumber)
+                    .Where(r => reservationToIgnore == null ||
+                        r.FloorNumber != reservationToIgnore.RoomID.FloorNumber ||
+                        r.RoomNumber != reservationToIgnore.RoomID.RoomNumber ||
+                        r.Username != reservationToIgnore.Username ||
+                        r.StartTime != reservationToIgnore.StartTime ||
+                        r.EndTime != reservationToIgnore.EndTime)
                     .Where(r => r.EndTime > reservation.StartTime)
                     .Where(r => r.StartTime < reservation.EndTime)
                     .FirstOrDefaultAsync();
