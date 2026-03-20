@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Reservoom.Models;
 using Reservoom.Services;
 using Reservoom.Stores;
 using Reservoom.ViewModels;
@@ -25,6 +26,11 @@ namespace Reservoom.HostBuilders
                 services.AddSingleton<Func<MakeReservationViewModel>>((s) => () => s.GetRequiredService<MakeReservationViewModel>());
                 services.AddSingleton<NavigationService<MakeReservationViewModel>>();
 
+                services.AddTransient<ModifyReservationViewModel>();
+                services.AddSingleton<Func<Reservation, ModifyReservationViewModel>>((s) =>
+                    (reservation) => ActivatorUtilities.CreateInstance<ModifyReservationViewModel>(s, reservation));
+                services.AddSingleton<ParameterizedNavigationService<Reservation, ModifyReservationViewModel>>();
+
                 services.AddSingleton<MainViewModel>();
             });
 
@@ -35,7 +41,8 @@ namespace Reservoom.HostBuilders
         {
             return ReservationListingViewModel.LoadViewModel(
                 services.GetRequiredService<HotelStore>(),
-                services.GetRequiredService<NavigationService<MakeReservationViewModel>>());
+                services.GetRequiredService<NavigationService<MakeReservationViewModel>>(),
+                services.GetRequiredService<ParameterizedNavigationService<Reservation, ModifyReservationViewModel>>());
         }
     }
 }

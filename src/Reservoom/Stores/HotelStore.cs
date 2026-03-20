@@ -17,6 +17,7 @@ namespace Reservoom.Stores
 
         public event Action<Reservation> ReservationMade;
         public event Action<Reservation> ReservationDeleted;
+        public event Action<Reservation, Reservation> ReservationModified;
 
         public HotelStore(Hotel hotel)
         {
@@ -57,6 +58,16 @@ namespace Reservoom.Stores
             OnReservationDeleted(reservation);
         }
 
+        public async Task ModifyReservation(Reservation oldReservation, Reservation newReservation)
+        {
+            await _hotel.ModifyReservation(oldReservation, newReservation);
+
+            _reservations.Remove(oldReservation);
+            _reservations.Add(newReservation);
+
+            OnReservationModified(oldReservation, newReservation);
+        }
+
         private void OnReservationMade(Reservation reservation)
         {
             ReservationMade?.Invoke(reservation);
@@ -65,6 +76,11 @@ namespace Reservoom.Stores
         private void OnReservationDeleted(Reservation reservation)
         {
             ReservationDeleted?.Invoke(reservation);
+        }
+
+        private void OnReservationModified(Reservation oldReservation, Reservation newReservation)
+        {
+            ReservationModified?.Invoke(oldReservation, newReservation);
         }
 
         private async Task Initialize()

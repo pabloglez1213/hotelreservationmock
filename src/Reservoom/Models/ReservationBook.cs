@@ -62,5 +62,23 @@ namespace Reservoom.Models
         {
             await _reservationDeleter.DeleteReservation(reservation);
         }
+
+        public async Task ModifyReservation(Reservation oldReservation, Reservation newReservation)
+        {
+            if (newReservation.StartTime > newReservation.EndTime)
+            {
+                throw new InvalidReservationTimeRangeException(newReservation);
+            }
+
+            Reservation conflictingReservation = await _reservationConflictValidator.GetConflictingReservation(newReservation, oldReservation);
+
+            if (conflictingReservation != null)
+            {
+                throw new ReservationConflictException(conflictingReservation, newReservation);
+            }
+
+            await _reservationDeleter.DeleteReservation(oldReservation);
+            await _reservationCreator.CreateReservation(newReservation);
+        }
     }
 }
